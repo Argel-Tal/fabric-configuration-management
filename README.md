@@ -1,5 +1,11 @@
 # Microsoft Fabric Workspace access management automation
 
+Tired of cleaning out old accounts & random users from your Power BI Workspaces, or figuring out which group you were supposed to be adding? Let the computer manage it for you! 💻🤖
+
+One of the main challenges with Power BI / Fabric administration is managing Workspace permissions & ensuring appropriate access controls are in-place. With Workspaces, EDIT rights are co-bundled with access management, allowing users with Edit rights to add others. 
+
+Fabric tenants typically devolve from Workspaces with a few well defined Entra-ID groups at the start, into a random assortment of people & groups with inconsistent or unexplained permissions months down the line. People join the team but aren't added to groups, test users are given over sized permissions "just to check something quickly", and policies aren't followed.
+
 ## Introduction
 
 This tooling provides an mechanism to automatically remediate which users, groups and machine identities have access each Fabric workspaces, ensuring alignment with a desired security / RBAC configuration stored in an external configuration file.

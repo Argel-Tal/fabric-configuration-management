@@ -13,20 +13,18 @@ Access to Workspaces is managed via authorised security groups, and developers a
 
 However, `Members` can also [add other entities to Workspaces](https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-roles-new-workspaces#workspace-roles), including groups, machine identities or users, at equal or lower levels (_Member, Contributor or Viewer)_, which would violate the access control authorisation & approval policies. As the ability of `Members` to add entities cannot be disabled, it is necessary to enforce this policy via a control. 
 
+![PowerBI Workspace add members menu](https://learn.microsoft.com/en-us/power-bi/collaborate-share/media/service-roles-new-workspaces/power-bi-roles-access.png)
+
 To eliminate manual intervention required to implement this control, an automated solution was sought. 
 
-!!! info "Not using _Contributor_ role"
-
-    Given the `Contributor` role in Fabric Workspaces has [restricted ability to create, manage and share Fabric assets](https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-roles-new-workspaces#workspace-roles), it is not widely used.
-
-![PowerBI Workspace add members menu](https://learn.microsoft.com/en-us/power-bi/collaborate-share/media/service-roles-new-workspaces/power-bi-roles-access.png){width=50%}
-
+> Q: "Why aren't you just using the _Contributor_ role?"
+> A: Given the `Contributor` role in Fabric Workspaces has [restricted ability to create, manage and share Fabric assets](https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-roles-new-workspaces#workspace-roles), and requires post-workspace creation configuration it is not widely used.
 
 ### Solution
 
 Fabric Capacities allow the execution of arbitrary Python / PySpark through Fabric Notebooks. This functionality has been combined with the [Semantic Link Labs Python package](https://semantic-link-labs.readthedocs.io/en/stable/sempy_labs.html) (_a Python wrapper for Fabric APIs_) to extract, evaluate and rectify [Workspace permissions](https://learn.microsoft.com/en-us/power-bi/collaborate-share/service-roles-new-workspaces#workspace-roles) for Fabric Workspaces. 
 
-By using a desired state configuration file, the tooling only performs access enforcement on listed Workspaces, rather than deprovisioning & re-provisioning across the entire tenant, allowing for a progressive rollout
+By using a desired state configuration file, the tooling only performs access enforcement on listed Workspaces, rather than deprovisioning & re-provisioning across the entire tenant, allowing for a progressive roll-out
 
 ### Architecture Diagram
 
@@ -42,11 +40,10 @@ Azure DevOps | Configuration file `.csv` | master copy
 Azure DevOps | Pipeline | **Trigger:** Changes to configuration file subdirectory on Main branch _(via Pull Request Completion)_<br>**Action:** upload (override) Configuration files into an Azure Storage Account<br>**Action:** trigger notebook execution
 Azure Storage Account | Configuration file `.csv` | Created / Updated by DevOps pipeline
 EntraID | Security group for Service Principals allowed to call EDIT Fabric Admin APIs | 
-EntraID| Service Principal with Workspace access | Provides the ability to run notebooks without being tied to a user identity
-Azure Keyvault | Service Principal secrets  | Used in Fabric Connectors
-Azure Keyvault | Azure Storage Account keys | Used in Fabric Connectors as backup for Service Principal authentication
+EntraID| Service Principal with Workspace access & access to storage containers | Provides the ability to run notebooks without being tied to a user identity
+Azure Keyvault | Service Principal secrets  | Accessed via Keyvault queries within Fabric Notebooks
 Microsoft Fabric | Fabric Capacity | 
-Microsoft Fabric | Workspace(s) bound to Fabric Capacity | Also connected to Git & Deployment pipelines for CICD
+Microsoft Fabric | Workspace(s) bound to Fabric Capacity | Also connected to Git & Deployment pipelines for CI/CD
 
 
 ### Deployment
@@ -66,14 +63,6 @@ To access the keyvault where the Admin service principal is located, the Fabric 
 Additionally, the entity invoking a Fabric Pipeline / Notebook requires reader rights to the keyvault (_either passively via a Service Principal when executing in a pipeline, or activated PIM for users running Notebook directly_). 
 
 For scheduled runs an orchestrator service principal is used, as Workspace Identities cannot be the executing identity of a notebook, but App Registrations can. This Orchestrator principal is a workspace member, and used in the Pipeline via Notebook Connectors. 
-
-#### Limitations
-
-[Fabric Connectors](https://learn.microsoft.com/en-us/fabric/data-factory/connector-azure-data-lake-storage-gen2) to the Storage Container are currently using Storage Account Keys and Service Principal secrets entered directly, rather than obtaining these via a [Keyvault Reference](https://learn.microsoft.com/en-us/fabric/data-factory/azure-key-vault-reference-configure). 
-
-This is done because Keyvault References do not currently work with Private Endpoint protected Keyvaults, and currently [only support OAuth access](https://learn.microsoft.com/en-au/fabric/data-factory/azure-key-vault-reference-configure#create-an-azure-key-vault-reference-in-microsoft-fabric), meaning we'd be tied to user accounts again, which we want to avoid! In the future, if Workspace Managed Identities / Service Principals and Private Networking support is added, this could be updated to eliminate the need to update Connector secret values when credentials are cycled. 
-
-![Azure Keyvault reference only supports OAuth](https://dataplatformblogwebfd-d3h9cbawf0h8ecgf.b01.azurefd.net/wp-content/uploads/2025/04/AKV-SneakPeak-FabCon.gif)
 
 ## Installation
 

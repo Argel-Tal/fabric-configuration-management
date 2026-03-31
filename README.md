@@ -40,7 +40,7 @@ Azure DevOps | Configuration file `.csv` | master copy
 Azure DevOps | Pipeline | **Trigger:** Changes to configuration file subdirectory on Main branch _(via Pull Request Completion)_<br>**Action:** upload (override) Configuration files into an Azure Storage Account<br>**Action:** trigger notebook execution
 Azure Storage Account | Configuration file `.csv` | Created / Updated by DevOps pipeline
 EntraID | Security group for Service Principals allowed to call EDIT Fabric Admin APIs | 
-EntraID| Service Principal with Workspace access & access to storage containers | Provides the ability to run notebooks without being tied to a user identity
+EntraID| Service Principal with <br>- Workspace access <br>- access to storage containers <br>- Ability to call public Fabric APIs | Provides the ability to run notebooks without being tied to a user identity
 Azure Keyvault | Service Principal secrets  | Accessed via Keyvault queries within Fabric Notebooks
 Microsoft Fabric | Fabric Capacity | 
 Microsoft Fabric | Workspace(s) bound to Fabric Capacity | Also connected to Git & Deployment pipelines for CI/CD

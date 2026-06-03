@@ -32,6 +32,8 @@ Fabric Capacities allow the execution of arbitrary Python / PySpark through Fabr
 
 By using a desired state configuration file, the tooling only performs access enforcement on listed Workspaces, rather than deprovisioning & re-provisioning across the entire tenant, allowing for a progressive roll-out
 
+To see more about why we used this approach, the decisions that went into it, refer to the presentation [Tech-demo-Automation-of-Fabric-Management-with-Semantic-Link-Labs.pdf](/Tech-demo-Automation-of-Fabric-Management-with-Semantic-Link-Labs.pdf), or watch the live demo at [Power BI for Government Community of Practice #20](https://youtu.be/yZ9YKUXDFf4?si=9gKlxUaI9YdNAw0-&t=3315)
+
 ### Architecture Diagram
 
 ![Architecture-diagram](/notebooks/01-utils/fabric-workspace-membership-validation-util.svg)
